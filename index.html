@@ -168,11 +168,9 @@
     </div>
 
     <script>
-// In your main page, when building each anime card:
 
-animeCard.addEventListener('click', () => {
-    window.location.href = `anime-details.html?id=${anime.id}`;
-});
+
+
         document.addEventListener('DOMContentLoaded', () => {
             // DOM Elements
             const searchInput = document.getElementById('searchInput');
@@ -383,6 +381,9 @@ animeCard.addEventListener('click', () => {
             searchInput.value = 'popular';
             searchButton.click();
         });
+            animeCard.addEventListener('click', () => {
+    window.location.href = `anime-details.html?id=${anime.id}`;
+});
     </script>
 </body>
 </html>
