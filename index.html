@@ -3,388 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Anime API Fetch Example</title>
+    <title>AniList GraphQL Anime Explorer</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a1a2e;
-            color: #e6e6e6;
-            max-width: 1000px;
+            background-color: #2b2d42;
+            color: #edf2f4;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
         
         .container {
-            background-color: #16213e;
+            background-color: #1a1c2c;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            margin-top: 20px;
+            padding: 25px;
         }
         
-        h2 {
-            color: #ff9a3c;
+        h1 {
+            color: #ef233c;
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
         
-        .controls {
+        .search-container {
             display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
         }
         
-        select, button {
-            background-color: #0f3460;
+        input {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #3a3d5a;
+            color: #edf2f4;
+            font-size: 16px;
+        }
+        
+        button {
+            background-color: #ef233c;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 20px;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            transition: all 0.3s;
+            transition: background-color 0.3s;
         }
         
-        select {
-            min-width: 120px;
-        }
-        
-        button:hover, select:hover {
-            background-color: #e94560;
+        button:hover {
+            background-color: #d90429;
         }
         
         .anime-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
         }
         
         .anime-card {
-            background-color: #0f3460;
+            background-color: #3a3d5a;
             border-radius: 8px;
             overflow: hidden;
-            transition: transform 0.3s;
+            transition: transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         
         .anime-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
         }
         
-        .anime-poster {
+        .anime-cover {
             width: 100%;
-            height: 280px;
+            height: 350px;
             object-fit: cover;
         }
         
         .anime-info {
-            padding: 12px;
+            padding: 15px;
         }
         
-        .anime-title {
-            font-size: 16px;
+        .anime-title-romaji {
+            font-size: 18px;
             font-weight: bold;
             margin: 0 0 8px 0;
-            color: #ff9a3c;
-            height: 40px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
+            color: #f8f9fa;
+        }
+        
+        .anime-title-english {
+            font-size: 16px;
+            color: #adb5bd;
+            margin: 0 0 5px 0;
+        }
+        
+        .anime-title-native {
+            font-size: 16px;
+            color: #adb5bd;
+            margin: 0;
         }
         
         .anime-details {
-            font-size: 14px;
-            color: #b3b3b3;
+            margin-top: 12px;
             display: flex;
-            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .anime-detail {
+            background-color: #2b2d42;
+            font-size: 14px;
+            padding: 5px 10px;
+            border-radius: 4px;
         }
         
         .loading {
             display: none;
             text-align: center;
-            padding: 20px;
-            font-size: 18px;
-            color: #ff9a3c;
+            padding: 50px;
+            font-size: 20px;
+            color: #ef233c;
         }
         
         .error {
-            color: #e94560;
-            padding: 15px;
             display: none;
+            color: #ef233c;
+            background-color: rgba(239, 35, 60, 0.1);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
             text-align: center;
-            background-color: rgba(233, 69, 96, 0.2);
-            border-radius: 5px;
-            margin: 15px 0;
         }
         
         .pagination {
             display: flex;
             justify-content: center;
-            margin-top: 25px;
-            gap: 10px;
-        }
-        
-        .page-info {
-            text-align: center;
-            margin-top: 15px;
-            color: #b3b3b3;
+            margin-top: 30px;
+            gap: 15px;
         }
     </style>
 </head>
 <body>
-    <!-- Minimal HTML -->
     <div class="container">
-        <h2>Anime Explorer</h2>
+        <h1>AniList Anime Explorer</h1>
         
-        <div class="controls">
-            <select id="sortOption">
-                <option value="all">All</option>
-                <option value="0-9">0-9</option>
-                <option value="other">Other</option>
-                <option value="a">A</option>
-                <option value="b">B</option>
-                <option value="c">C</option>
-                <option value="d">D</option>
-                <option value="e">E</option>
-                <option value="f">F</option>
-                <option value="g">G</option>
-                <option value="h">H</option>
-                <option value="i">I</option>
-                <option value="j">J</option>
-                <option value="k">K</option>
-                <option value="l">L</option>
-                <option value="m">M</option>
-                <option value="n">N</option>
-                <option value="o">O</option>
-                <option value="p">P</option>
-                <option value="q">Q</option>
-                <option value="r">R</option>
-                <option value="s">S</option>
-                <option value="t">T</option>
-                <option value="u">U</option>
-                <option value="v">V</option>
-                <option value="w">W</option>
-                <option value="x">X</option>
-                <option value="y">Y</option>
-                <option value="z">Z</option>
-            </select>
-            <button id="fetchButton">Fetch Anime</button>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search anime by title..." value="">
+            <button id="searchButton">Search</button>
         </div>
         
-        <div id="loading" class="loading">Loading anime data...</div>
         <div id="error" class="error"></div>
+        <div id="loading" class="loading">Searching for anime...</div>
+        
         <div id="animeGrid" class="anime-grid"></div>
         
-        <div class="page-info" id="pageInfo"></div>
         <div class="pagination">
-            <button id="prevPage" disabled>Previous</button>
-            <button id="nextPage" disabled>Next</button>
+            <button id="prevPage">Previous Page</button>
+            <button id="nextPage">Next Page</button>
         </div>
     </div>
 
-    <!-- JavaScript for Fetch API -->
     <script>
-        // Wait for the DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Get references to DOM elements
-            const fetchButton = document.getElementById('fetchButton');
-            const sortOption = document.getElementById('sortOption');
+            // DOM Elements
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.getElementById('searchButton');
             const animeGrid = document.getElementById('animeGrid');
             const loadingIndicator = document.getElementById('loading');
             const errorContainer = document.getElementById('error');
             const prevPageButton = document.getElementById('prevPage');
             const nextPageButton = document.getElementById('nextPage');
-            const pageInfo = document.getElementById('pageInfo');
             
-            // Current page state
+            // State variables
             let currentPage = 1;
-            let totalPages = 1;
-            let currentSortOption = "all";
+            let lastQuery = '';
             
-            // Add click event listener to the fetch button
-            fetchButton.addEventListener('click', () => {
-                currentPage = 1; // Reset to page 1 when changing sort options
-                currentSortOption = sortOption.value;
-                fetchAnime(currentSortOption, currentPage);
+            // Event Listeners
+            searchButton.addEventListener('click', () => {
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm) {
+                    currentPage = 1;
+                    lastQuery = searchTerm;
+                    searchAnime(searchTerm, currentPage);
+                }
             });
             
-            // Add event listeners for pagination buttons
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchButton.click();
+                }
+            });
+            
             prevPageButton.addEventListener('click', () => {
                 if (currentPage > 1) {
                     currentPage--;
-                    fetchAnime(currentSortOption, currentPage);
+                    searchAnime(lastQuery, currentPage);
                 }
             });
             
             nextPageButton.addEventListener('click', () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    fetchAnime(currentSortOption, currentPage);
-                }
+                currentPage++;
+                searchAnime(lastQuery, currentPage);
             });
             
-            // Function to fetch anime data from the API
-            function fetchAnime(sortOption, page) {
-                // Show loading indicator
+            // GraphQL query for searching anime
+            function searchAnime(search, page) {
+                // Show loading and hide error
                 loadingIndicator.style.display = 'block';
-                // Hide any previous errors
                 errorContainer.style.display = 'none';
-                // Clear previous results
                 animeGrid.innerHTML = '';
                 
-                // Update pagination buttons
-                updatePaginationButtons();
-                
-                // Construct the API URL
-                const apiUrl = `https://animeapi-lyart.vercel.app/api/v2/hianime/azlist/${sortOption}?page=${page}`;
-                
-                // Perform the fetch operation
-                fetch(apiUrl, {mode: 'no-cors'})
-                    .then(response => {
-                        // Check if the response is ok (status in the range 200-299)
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! Status: ${response.status}`);
+                // Build the GraphQL query
+                const query = `
+                query ($page: Int, $perPage: Int, $search: String) {
+                    Page(page: $page, perPage: $perPage) {
+                        pageInfo {
+                            total
+                            currentPage
+                            lastPage
+                            hasNextPage
+                            perPage
                         }
-                        return response.json();
+                        media(search: $search, type: ANIME, sort: POPULARITY_DESC) {
+                            id
+                            title {
+                                romaji
+                                english
+                                native
+                            }
+                            coverImage {
+                                large
+                            }
+                            format
+                            episodes
+                            duration
+                            status
+                            averageScore
+                            genres
+                            season
+                            seasonYear
+                        }
+                    }
+                }
+                `;
+                
+                // Variables for the query
+                const variables = {
+                    search: search,
+                    page: page,
+                    perPage: 12
+                };
+                
+                // API request configuration
+                const url = 'https://graphql.anilist.co';
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        variables: variables
                     })
+                };
+                
+                // Make the API request
+                fetch(url, options)
+                    .then(handleResponse)
                     .then(data => {
-                        // Check if the API request was successful
-                        if (data.success) {
-                            // Process and display the anime data
-                            displayAnimeList(data.data);
-                            
-                            // Update pagination state
-                            totalPages = data.data.totalPages;
-                            currentPage = data.data.currentPage;
-                            updatePaginationInfo(currentPage, totalPages);
-                            updatePaginationButtons();
-                        } else {
-                            throw new Error('API returned unsuccessful response');
-                        }
+                        displayAnimeResults(data);
+                        updatePaginationButtons(data.data.Page.pageInfo);
                     })
-                    .catch(error => {
-                        // Handle any errors
-                        console.error('Fetch error:', error);
-                        errorContainer.textContent = `Failed to fetch anime data: ${error.message}`;
-                        errorContainer.style.display = 'block';
-                    })
+                    .catch(handleError)
                     .finally(() => {
-                        // Hide loading indicator when done (success or error)
                         loadingIndicator.style.display = 'none';
                     });
             }
             
-            // Function to display anime list in the grid
-            function displayAnimeList(data) {
-                const animes = data.animes;
+            // Function to handle the response
+            function handleResponse(response) {
+                return response.json().then(function (json) {
+                    return response.ok ? json : Promise.reject(json);
+                });
+            }
+            
+            // Function to display anime results
+            function displayAnimeResults(data) {
+                const animeList = data.data.Page.media;
                 
-                // If no animes found
-                if (animes.length === 0) {
-                    animeGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">No anime found for this selection.</p>';
+                if (animeList.length === 0) {
+                    animeGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 30px;">No anime found. Try a different search term.</p>';
                     return;
                 }
                 
-                // For each anime, create a card and add it to the grid
-                animes.forEach(anime => {
-                    // Create a anime card element
+                animeList.forEach(anime => {
                     const animeCard = document.createElement('div');
                     animeCard.className = 'anime-card';
                     
-                    // Use placeholder for missing posters
-                    const posterUrl = anime.poster || '/api/placeholder/200/280';
+                    // Create the image placeholder URL if no cover image
+                    const coverImageUrl = anime.coverImage?.large || `/api/placeholder/250/350`;
                     
-                    // Populate the card with anime details
+                    // Format status for display
+                    const status = anime.status ? anime.status.replace('_', ' ') : 'Unknown';
+                    
+                    // Format season for display
+                    const season = anime.season && anime.seasonYear 
+                        ? `${anime.season.charAt(0) + anime.season.slice(1).toLowerCase()} ${anime.seasonYear}`
+                        : 'Unknown';
+                    
                     animeCard.innerHTML = `
-                        <img src="${posterUrl}" alt="${anime.name}" class="anime-poster" onerror="this.src='/api/placeholder/200/280'">
+                        <img src="${coverImageUrl}" alt="${anime.title.romaji}" class="anime-cover" onerror="this.src='/api/placeholder/250/350'">
                         <div class="anime-info">
-                            <h3 class="anime-title">${anime.name}</h3>
+                            <h3 class="anime-title-romaji">${anime.title.romaji || 'No Title'}</h3>
+                            <p class="anime-title-english">${anime.title.english || 'No English Title'}</p>
+                            <p class="anime-title-native">${anime.title.native || ''}</p>
+                            
                             <div class="anime-details">
-                                <span>${anime.type || 'N/A'}</span>
-                                <span>Rating: ${anime.rating || 'N/A'}</span>
+                                ${anime.format ? `<span class="anime-detail">${anime.format.replace('_', ' ')}</span>` : ''}
+                                ${anime.episodes ? `<span class="anime-detail">${anime.episodes} episodes</span>` : ''}
+                                ${anime.duration ? `<span class="anime-detail">${anime.duration} min/ep</span>` : ''}
+                                ${anime.averageScore ? `<span class="anime-detail">${anime.averageScore}% Score</span>` : ''}
+                                <span class="anime-detail">${status}</span>
+                                <span class="anime-detail">${season}</span>
                             </div>
-                            <div class="anime-details" style="margin-top: 5px;">
-                                <span>Sub: ${anime.episodes?.sub || 'N/A'}</span>
-                                <span>Dub: ${anime.episodes?.dub || 'N/A'}</span>
+                            
+                            <div class="anime-details" style="margin-top: 8px;">
+                                ${anime.genres ? anime.genres.slice(0, 3).map(genre => 
+                                    `<span class="anime-detail">${genre}</span>`
+                                ).join('') : ''}
                             </div>
                         </div>
                     `;
                     
-                    // Add the card to the anime grid
+                    // Add click event to view more details
+                    animeCard.addEventListener('click', () => {
+                        viewAnimeDetails(anime.id);
+                    });
+                    
                     animeGrid.appendChild(animeCard);
                 });
             }
             
-            // Function to update pagination info text
-            function updatePaginationInfo(current, total) {
-                pageInfo.textContent = `Page ${current} of ${total}`;
+            // Function to view anime details (simplified for this example)
+            function viewAnimeDetails(animeId) {
+                console.log(`Viewing details for anime ID: ${animeId}`);
+                // In a full implementation, this would fetch and display detailed info for the selected anime
             }
             
-            // Function to update pagination buttons state
-            function updatePaginationButtons() {
-                prevPageButton.disabled = currentPage <= 1;
-                nextPageButton.disabled = currentPage >= totalPages;
+            // Update pagination buttons based on page info
+            function updatePaginationButtons(pageInfo) {
+                prevPageButton.disabled = pageInfo.currentPage <= 1;
+                nextPageButton.disabled = !pageInfo.hasNextPage;
             }
             
-            // Fetch anime data on initial load
-            fetchAnime("all", 1);
-            
-            // Enhanced fetch function with timeout and retry capability
-            function enhancedFetch(url, options = {}) {
-                // Default options
-                const defaultOptions = {
-                    timeout: 8000,   // 8 seconds timeout
-                    retries: 2,      // Number of retry attempts
-                    retryDelay: 1500 // Delay between retries in ms
-                };
+            // Function to handle errors
+            function handleError(error) {
+                console.error('Error fetching data:', error);
                 
-                // Merge default options with provided options
-                const fetchOptions = { ...defaultOptions, ...options };
-                let retriesLeft = fetchOptions.retries;
-
-                // Create a promise that rejects after the timeout
-                const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => {
-                        reject(new Error(`Request timed out after ${fetchOptions.timeout}ms`));
-                    }, fetchOptions.timeout);
-                });
-
-                // Function to attempt the fetch with retry logic
-                function attemptFetch() {
-                    return new Promise((resolve, reject) => {
-                        // Race between fetch and timeout
-                        Promise.race([
-                            fetch(url, options),
-                            timeoutPromise
-                        ])
-                        .then(resolve)
-                        .catch(error => {
-                            // If we have retries left, try again after delay
-                            if (retriesLeft > 0) {
-                                console.log(`Retrying fetch to ${url}. Retries left: ${retriesLeft}`);
-                                retriesLeft--;
-                                setTimeout(() => {
-                                    resolve(attemptFetch());
-                                }, fetchOptions.retryDelay);
-                            } else {
-                                // No retries left, reject with the error
-                                reject(error);
-                            }
-                        });
-                    });
+                let errorMessage = 'An error occurred while fetching data.';
+                if (error.errors && error.errors.length > 0) {
+                    errorMessage = error.errors[0].message;
                 }
-
-                // Start the fetch attempt
-                return attemptFetch();
+                
+                errorContainer.textContent = errorMessage;
+                errorContainer.style.display = 'block';
             }
-
-            // Note: The enhancedFetch function is defined but not used.
-            // To use it, replace the fetch() calls with enhancedFetch().
+            
+            // Initialize with a popular anime search
+            searchInput.value = 'popular';
+            searchButton.click();
         });
     </script>
 </body>
-    </html>
+</html>
