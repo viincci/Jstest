@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Details</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2b2d42;
+            color: #edf2f4;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header styles with background image */
+        .anime-header {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+        
+        .header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(5px) brightness(0.3);
+            z-index: 1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 30px;
+        }
+        
+        .cover-image {
+            width: 225px;
+            height: 320px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            object-fit: cover;
+        }
+        
+        .anime-titles {
+            flex: 1;
+        }
+        
+        .romaji-title {
+            font-size: 36px;
+            margin: 0 0 8px 0;
+            color: #fff;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .english-title {
+            font-size: 22px;
+            margin: 0 0 4px 0;
+            color: #ddd;
+            font-weight: 400;
+        }
+        
+        .native-title {
+            font-size: 18px;
+            margin: 0;
+            color: #bbb;
+            font-weight: 400;
+        }
+        
+        /* Main content styles */
+        .anime-content {
+            display: flex;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        .main-info {
+            flex: 3;
+        }
+        
+        .sidebar {
+            flex: 1;
+        }
+        
+        .section {
+            background-color: #1a1c2c;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #ef233c;
+            font-size: 22px;
+            border-bottom: 2px solid #3a3d5a;
+            padding-bottom: 10px;
+        }
+        
+        /* Stats and info styles */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 14px;
+            color: #adb5bd;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            color: #edf2f4;
+            font-weight: 500;
+        }
+        
+        /* Genre and tag styles */
+        .genres {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .genre {
+            background-color: #3a3d5a;
+            color: #edf2f4;
+            padding: 5px 12px;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+        
+        /* Characters section */
+        .characters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+        }
+        
+        .character-item {
+            text-align: center;
+        }
+        
+        .character-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .character-name {
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.3;
+        }
+        
+        /* Related anime styles */
+        .related-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .related-item {
+            text-align: center;
+        }
+        
+        .related-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .related-title {
+            font-size: 14px;
+            margin: 0;
+            line-height: 1.3;
+        }
+        
+        /* Stats section */
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .stat-label {
+            color: #adb5bd;
+        }
+        
+        .score-circle {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background-color: #3a3d5a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0 auto 10px auto;
+            border: 3px solid #ef233c;
+        }
+        
+        /* Loading and error states */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 20px;
+            color: #ef233c;
+        }
+        
+        .error {
+            color: #ef233c;
+            background-color: rgba(239, 35, 60, 0.1);
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        /* Back button */
+        .back-button {
+            display: inline-block;
+            background-color: #3a3d5a;
+            color: #edf2f4;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: #ef233c;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .anime-content {
+                flex-direction: column;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .anime-header {
+                height: auto;
+            }
+            
+            .cover-image {
+                width: 180px;
+                height: 260px;
+            }
+            
+            .romaji-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Loading anime details...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="animeContainer" class="container" style="display: none;">
+        <a href="index.html" class="back-button">← Back to Search</a>
+        
+        <div class="anime-header" id="animeHeader">
+            <div class="header-background" id="headerBackground"></div>
+            <div class="header-content">
+                <img id="coverImage" src="/api/placeholder/225/320" alt="Anime Cover" class="cover-image">
+                <div class="anime-titles">
+                    <h1 id="romajiTitle" class="romaji-title">Loading...</h1>
+                    <h2 id="englishTitle" class="english-title"></h2>
+                    <h3 id="nativeTitle" class="native-title"></h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="anime-content">
+            <div class="main-info">
+                <div class="section">
+                    <h2 class="section-title">Synopsis</h2>
+                    <p id="description">Loading description...</p>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Characters</h2>
+                    <div id="charactersGrid" class="characters-grid">
+                        <!-- Character items will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Related Anime</h2>
+                    <div id="relatedList" class="related-list">
+                        <!-- Related anime items will be inserted here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar">
+                <div class="section">
+                    <h2 class="section-title">Score</h2>
+                    <div class="score-circle" id="scoreCircle">??</div>
+                    <div class="stat-item">
+                        <span class="stat-label">Popularity</span>
+                        <span id="popularity">??</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Favorites</span>
+                        <span id="favorites">??</span>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Information</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Format</span>
+                            <span id="format" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Episodes</span>
+                            <span id="episodes" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Duration</span>
+                            <span id="duration" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span id="status" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Season</span>
+                            <span id="season" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Started</span>
+                            <span id="startDate" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ended</span>
+                            <span id="endDate" class="info-value">Unknown</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Source</span>
+                            <span id="source" class="info-value">Unknown</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Genres</h2>
+                    <div id="genresList" class="genres">
+                        <!-- Genre tags will be inserted here -->
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <h2 class="section-title">Studios</h2>
+                    <div id="studiosList">
+                        <!-- Studios will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM elements
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const animeContainer = document.getElementById('animeContainer');
+            
+            // Get anime ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const animeId = urlParams.get('id');
+            
+            if (!animeId) {
+                showError('No anime ID provided. Please go back and select an anime.');
+                return;
+            }
+            
+            // Fetch anime details
+            fetchAnimeDetails(animeId);
+            
+            function fetchAnimeDetails(id) {
+                // GraphQL query for detailed anime information
+                const query = `
+                query ($id: Int) {
+                    Media(id: $id, type: ANIME) {
+                        id
+                        title {
+                            romaji
+                            english
+                            native
+                        }
+                        description(asHtml: false)
+                        coverImage {
+                            large
+                            extraLarge
+                        }
+                        bannerImage
+                        format
+                        episodes
+                        duration
+                        status
+                        startDate {
+                            year
+                            month
+                            day
+                        }
+                        endDate {
+                            year
+                            month
+                            day
+                        }
+                        season
+                        seasonYear
+                        source
+                        averageScore
+                        meanScore
+                        popularity
+                        favourites
+                        genres
+                        studios {
+                            nodes {
+                                id
+                                name
+                            }
+                        }
+                        characters(sort: ROLE, perPage: 8) {
+                            nodes {
+                                id
+                                name {
+                                    full
+                                }
+                                image {
+                                    medium
+                                }
+                            }
+                        }
+                        relations {
+                            edges {
+                                id
+                                relationType
+                                node {
+                                    id
+                                    title {
+                                        romaji
+                                    }
+                                    coverImage {
+                                        medium
+                                    }
+                                    format
+                                    type
+                                }
+                            }
+                        }
+                    }
+                }
+                `;
+                
+                // Variables for the query
+                const variables = {
+                    id: parseInt(id)
+                };
+                
+                // API request configuration
+                const url = 'https://graphql.anilist.co';
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        variables: variables
+                    })
+                };
+                
+                // Make the API request
+                fetch(url, options)
+                    .then(handleResponse)
+                    .then(data => {
+                        if (data.data && data.data.Media) {
+                            displayAnimeDetails(data.data.Media);
+                        } else {
+                            showError('Anime not found or API error.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching anime details:', error);
+                        showError('Failed to load anime details. Please try again later.');
+                    });
+            }
+            
+            // Function to handle the response
+            function handleResponse(response) {
+                return response.json().then(function (json) {
+                    return response.ok ? json : Promise.reject(json);
+                });
+            }
+            
+            // Function to display error
+            function showError(message) {
+                loadingEl.style.display = 'none';
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            }
+            
+            // Function to display anime details
+            function displayAnimeDetails(anime) {
+                // Update page title
+                document.title = `${anime.title.romaji} | Anime Details`;
+                
+                // Update header and title section
+                document.getElementById('romajiTitle').textContent = anime.title.romaji || 'No Title';
+                document.getElementById('englishTitle').textContent = anime.title.english || '';
+                document.getElementById('nativeTitle').textContent = anime.title.native || '';
+                
+                // Set cover image and background
+                const coverImage = document.getElementById('coverImage');
+                coverImage.src = anime.coverImage?.extraLarge || anime.coverImage?.large || '/api/placeholder/225/320';
+                coverImage.alt = anime.title.romaji;
+                
+                const headerBackground = document.getElementById('headerBackground');
+                headerBackground.style.backgroundImage = `url('${anime.bannerImage || anime.coverImage?.extraLarge || anime.coverImage?.large}')`;
+                
+                // Description
+                document.getElementById('description').innerHTML = anime.description || 'No description available.';
+                
+                // Score and stats
+                const scoreCircle = document.getElementById('scoreCircle');
+                if (anime.averageScore) {
+                    scoreCircle.textContent = anime.averageScore + '%';
+                    // Change color based on score
+                    if (anime.averageScore >= 75) {
+                        scoreCircle.style.borderColor = '#4CAF50';  // Good score - green
+                    } else if (anime.averageScore >= 60) {
+                        scoreCircle.style.borderColor = '#FFC107';  // Average score - yellow
+                    } else {
+                        scoreCircle.style.borderColor = '#F44336';  // Poor score - red
+                    }
+                } else {
+                    scoreCircle.textContent = 'N/A';
+                }
+                
+                document.getElementById('popularity').textContent = anime.popularity?.toLocaleString() || 'Unknown';
+                document.getElementById('favorites').textContent = anime.favourites?.toLocaleString() || 'Unknown';
+                
+                // Information grid
+                document.getElementById('format').textContent = formatEnum(anime.format) || 'Unknown';
+                document.getElementById('episodes').textContent = anime.episodes || 'Unknown';
+                document.getElementById('duration').textContent = anime.duration ? `${anime.duration} min/ep` : 'Unknown';
+                document.getElementById('status').textContent = formatEnum(anime.status) || 'Unknown';
+                
+                // Season information
+                let seasonText = 'Unknown';
+                if (anime.season && anime.seasonYear) {
+                    seasonText = `${formatEnum(anime.season)} ${anime.seasonYear}`;
+                }
+                document.getElementById('season').textContent = seasonText;
+                
+                // Start and end dates
+                document.getElementById('startDate').textContent = formatDate(anime.startDate);
+                document.getElementById('endDate').textContent = formatDate(anime.endDate);
+                
+                // Source
+                document.getElementById('source').textContent = formatEnum(anime.source) || 'Unknown';
+                
+                // Genres
+                const genresList = document.getElementById('genresList');
+                genresList.innerHTML = '';
+                
+                if (anime.genres && anime.genres.length > 0) {
+                    anime.genres.forEach(genre => {
+                        const genreEl = document.createElement('span');
+                        genreEl.className = 'genre';
+                        genreEl.textContent = genre;
+                        genresList.appendChild(genreEl);
+                    });
+                } else {
+                    genresList.innerHTML = '<p>No genres listed</p>';
+                }
+                
+                // Studios
+                const studiosList = document.getElementById('studiosList');
+                studiosList.innerHTML = '';
+                
+                if (anime.studios && anime.studios.nodes.length > 0) {
+                    anime.studios.nodes.forEach(studio => {
+                        const studioEl = document.createElement('div');
+                        studioEl.textContent = studio.name;
+                        studiosList.appendChild(studioEl);
+                    });
+                } else {
+                    studiosList.innerHTML = '<p>No studios listed</p>';
+                }
+                
+                // Characters
+                const charactersGrid = document.getElementById('charactersGrid');
+                charactersGrid.innerHTML = '';
+                
+                if (anime.characters && anime.characters.nodes.length > 0) {
+                    anime.characters.nodes.forEach(character => {
+                        const characterEl = document.createElement('div');
+                        characterEl.className = 'character-item';
+                        
+                        const characterImg = document.createElement('img');
+                        characterImg.className = 'character-image';
+                        characterImg.src = character.image?.medium || '/api/placeholder/120/150';
+                        characterImg.alt = character.name?.full || 'Character';
+                        
+                        const characterName = document.createElement('p');
+                        characterName.className = 'character-name';
+                        characterName.textContent = character.name?.full || 'Unknown';
+                        
+                        characterEl.appendChild(characterImg);
+                        characterEl.appendChild(characterName);
+                        charactersGrid.appendChild(characterEl);
+                    });
+                } else {
+                    charactersGrid.innerHTML = '<p>No character information available</p>';
+                }
+                
+                // Related anime
+                const relatedList = document.getElementById('relatedList');
+                relatedList.innerHTML = '';
+                
+                if (anime.relations && anime.relations.edges.length > 0) {
+                    // Filter to only show anime-type relations
+                    const animeRelations = anime.relations.edges.filter(edge => 
+                        edge.node.type === 'ANIME'
+                    );
+                    
+                    if (animeRelations.length > 0) {
+                        animeRelations.slice(0, 6).forEach(relation => {
+                            const relatedEl = document.createElement('div');
+                            relatedEl.className = 'related-item';
+                            
+                            const relatedImg = document.createElement('img');
+                            relatedImg.className = 'related-image';
+                            relatedImg.src = relation.node.coverImage?.medium || '/api/placeholder/150/200';
+                            relatedImg.alt = relation.node.title?.romaji || 'Related Anime';
+                            
+                            const relatedTitle = document.createElement('p');
+                            relatedTitle.className = 'related-title';
+                            relatedTitle.textContent = relation.node.title?.romaji || 'Unknown';
+                            
+                            const relationType = document.createElement('small');
+                            relationType.textContent = formatEnum(relation.relationType) || 'Related';
+                            
+                            // Make the related anime clickable
+                            relatedEl.style.cursor = 'pointer';
+                            relatedEl.addEventListener('click', () => {
+                                window.location.href = `anime-details.html?id=${relation.node.id}`;
+                            });
+                            
+                            relatedEl.appendChild(relatedImg);
+                            relatedEl.appendChild(relatedTitle);
+                            relatedEl.appendChild(relationType);
+                            relatedList.appendChild(relatedEl);
+                        });
+                    } else {
+                        relatedList.innerHTML = '<p>No related anime available</p>';
+                    }
+                } else {
+                    relatedList.innerHTML = '<p>No related anime available</p>';
+                }
+                
+                // Show the container and hide loading indicator
+                loadingEl.style.display = 'none';
+                animeContainer.style.display = 'block';
+            }
+            
+            // Helper function to format enum values for display
+            function formatEnum(value) {
+                if (!value) return null;
+                // Replace underscores with spaces and capitalize each word
+                return value
+                    .split('_')
+                    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+                    .join(' ');
+            }
+            
+            // Helper function to format dates
+            function formatDate(dateObj) {
+                if (!dateObj || !dateObj.year) return 'Unknown';
+                
+                const months = [
+                    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+                ];
+                
+                const month = dateObj.month ? months[dateObj.month - 1] : '';
+                const day = dateObj.day || '';
+                
+                if (month && day) {
+                    return `${month} ${day}, ${dateObj.year}`;
+                } else if (month) {
+                    return `${month} ${dateObj.year}`;
+                } else {
+                    return dateObj.year.toString();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
