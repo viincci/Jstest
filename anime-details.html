@@ -602,7 +602,40 @@
                 
                 // Description
                 document.getElementById('description').innerHTML = anime.description || 'No description available.';
-                
+                // Add this after setting the description
+                // Generate episode list buttons
+                const episodesList = document.getElementById('episodesList');
+                episodesList.innerHTML = '';
+
+if (anime.episodes && anime.episodes > 0) {
+    for (let i = 1; i <= anime.episodes; i++) {
+        const episodeButton = document.createElement('button');
+        episodeButton.className = 'episode-button';
+        episodeButton.textContent = `Episode ${i}`;
+        
+        // Add click event
+        episodeButton.addEventListener('click', () => {
+            // This would typically link to the episode or show episode details
+            // For now, just show an alert
+            alert(`You clicked Episode ${i} of ${anime.title.romaji}`);
+            
+            // In a real implementation, you might do something like:
+            // window.location.href = `watch.html?id=${anime.id}&episode=${i}`;
+        });
+        
+        episodesList.appendChild(episodeButton);
+    }
+    
+    // Add a note about the episodes
+    const note = document.createElement('p');
+    note.style.fontSize = '14px';
+    note.style.color = '#adb5bd';
+    note.style.marginTop = '10px';
+    note.textContent = 'Click an episode to watch';
+    episodesList.appendChild(note);
+} else {
+    episodesList.innerHTML = '<p>No episode information available</p>';
+}
                 // Score and stats
                 const scoreCircle = document.getElementById('scoreCircle');
                 if (anime.averageScore) {
