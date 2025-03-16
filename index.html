@@ -307,7 +307,9 @@
                 animeList.forEach(anime => {
                     const animeCard = document.createElement('div');
                     animeCard.className = 'anime-card';
-                    
+                    animeCard.addEventListener('click', () => {
+                window.location.href = `anime-details.html?id=${anime.id}`;
+            });
                     // Create the image placeholder URL if no cover image
                     const coverImageUrl = anime.coverImage?.large || `/api/placeholder/250/350`;
                     
