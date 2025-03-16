@@ -244,7 +244,7 @@
                 const apiUrl = `https://animeapi-lyart.vercel.app/api/v2/hianime/azlist/${sortOption}?page=${page}`;
                 
                 // Perform the fetch operation
-                fetch(apiUrl)
+                fetch(apiUrl), mode: 'no-cors'})
                     .then(response => {
                         // Check if the response is ok (status in the range 200-299)
                         if (!response.ok) {
