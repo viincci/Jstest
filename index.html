@@ -156,10 +156,7 @@
         </div>
         
         <div id="error" class="error"></div>
- // In your main page, when building each anime card:
-animeCard.addEventListener('click', () => {
-    window.location.href = `anime-details.html?id=${anime.id}`;
-});
+ 
        <div id="loading" class="loading">Searching for anime...</div>
         
         <div id="animeGrid" class="anime-grid"></div>
@@ -171,7 +168,11 @@ animeCard.addEventListener('click', () => {
     </div>
 
     <script>
+// In your main page, when building each anime card:
 
+animeCard.addEventListener('click', () => {
+    window.location.href = `anime-details.html?id=${anime.id}`;
+});
         document.addEventListener('DOMContentLoaded', () => {
             // DOM Elements
             const searchInput = document.getElementById('searchInput');
