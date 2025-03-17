@@ -617,10 +617,10 @@ if (anime.episodes && anime.episodes > 0) {
         episodeButton.addEventListener('click', () => {
             // This would typically link to the episode or show episode details
             // For now, just show an alert
-            alert(`You clicked Episode ${i} of ${anime.title.romaji}`);
+            //alert(`You clicked Episode ${i} of ${anime.title.romaji}`);
             
             // In a real implementation, you might do something like:
-            // window.location.href = `watch.html?id=${anime.id}&episode=${i}`;
+            window.location.href = `anime-episode.html?id=${anime.id}&episode=${i}`;
         });
         
         episodesList.appendChild(episodeButton);
