@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anime Episodes</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2b2d42;
+            color: #edf2f4;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* Header styles with background image */
+        .anime-header {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+            margin-bottom: 30px;
+        }
+        
+        .header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(5px) brightness(0.3);
+            z-index: 1;
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            width: 100%;
+            display: flex;
+            align-items: flex-end;
+            gap: 30px;
+        }
+        
+        .cover-image {
+            width: 180px;
+            height: 260px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            object-fit: cover;
+        }
+        
+        .anime-titles {
+            flex: 1;
+        }
+        
+        .romaji-title {
+            font-size: 32px;
+            margin: 0 0 8px 0;
+            color: #fff;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .english-title {
+            font-size: 20px;
+            margin: 0 0 4px 0;
+            color: #ddd;
+            font-weight: 400;
+        }
+        
+        /* Main content styles */
+        .main-content {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .episode-list {
+            flex: 1;
+            background-color: #1a1c2c;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .player-container {
+            flex: 2;
+            background-color: #1a1c2c;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #ef233c;
+            font-size: 22px;
+            border-bottom: 2px solid #3a3d5a;
+            padding-bottom: 10px;
+        }
+        
+        /* Episode list styles */
+        .episodes {
+            max-height: 600px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #3a3d5a #1a1c2c;
+        }
+        
+        .episodes::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .episodes::-webkit-scrollbar-track {
+            background: #1a1c2c;
+        }
+        
+        .episodes::-webkit-scrollbar-thumb {
+            background-color: #3a3d5a;
+            border-radius: 10px;
+        }
+        
+        .episode-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid #3a3d5a;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .episode-item:hover {
+            background-color: #2c304d;
+        }
+        
+        .episode-item.active {
+            background-color: #3a3d5a;
+            border-left: 4px solid #ef233c;
+        }
+        
+        .episode-number {
+            font-weight: bold;
+            color: #ef233c;
+            margin-right: 8px;
+        }
+        
+        .episode-title {
+            font-weight: 500;
+        }
+        
+        .episode-length {
+            display: block;
+            font-size: 14px;
+            color: #adb5bd;
+            margin-top: 5px;
+        }
+        
+        /* Player styles */
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 0;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            background-color: #000;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            text-align: center;
+        }
+        
+        .video-placeholder-icon {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+        
+        .video-player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        
+        .episode-info {
+            padding: 15px;
+            background-color: #2c304d;
+            border-radius: 4px;
+        }
+        
+        .episode-info-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .episode-info-description {
+            color: #ddd;
+            line-height: 1.6;
+        }
+        
+        /* Controls */
+        .player-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .control-button {
+            background-color: #3a3d5a;
+            color: #edf2f4;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .control-button:hover {
+            background-color: #ef233c;
+        }
+        
+        /* Season selector */
+        .season-selector {
+            margin-bottom: 20px;
+        }
+        
+        .season-select {
+            padding: 8px 12px;
+            background-color: #3a3d5a;
+            color: #edf2f4;
+            border: none;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        /* Navigation buttons */
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        .nav-button {
+            display: inline-block;
+            background-color: #3a3d5a;
+            color: #edf2f4;
+            padding: 10px 20px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-button:hover {
+            background-color: #ef233c;
+        }
+        
+        /* Loading and error states */
+        .loading {
+            text-align: center;
+            padding: 50px;
+            font-size: 20px;
+            color: #ef233c;
+        }
+        
+        .error {
+            color: #ef233c;
+            background-color: rgba(239, 35, 60, 0.1);
+            padding: 20px;
+            border-radius: 4px;
+            margin: 20px;
+            text-align: center;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 900px) {
+            .main-content {
+                flex-direction: column;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .player-container {
+                order: -1; /* Shows player first on mobile */
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .anime-header {
+                height: auto;
+            }
+            
+            .cover-image {
+                width: 140px;
+                height: 200px;
+            }
+            
+            .romaji-title {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="loading">Loading anime episodes...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    
+    <div id="animeContainer" class="container" style="display: none;">
+        <div class="navigation">
+            <a href="anime-details.html" id="backButton" class="nav-button">← Back to Details</a>
+            <a href="index.html" class="nav-button">Back to Search</a>
+        </div>
+        
+        <div class="anime-header" id="animeHeader">
+            <div class="header-background" id="headerBackground"></div>
+            <div class="header-content">
+                <img id="coverImage" src="/api/placeholder/180/260" alt="Anime Cover" class="cover-image">
+                <div class="anime-titles">
+                    <h1 id="romajiTitle" class="romaji-title">Loading...</h1>
+                    <h2 id="englishTitle" class="english-title"></h2>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="episode-list">
+                <div class="season-selector">
+                    <select id="seasonSelect" class="season-select">
+                        <option value="1">Season 1</option>
+                    </select>
+                </div>
+                
+                <h2 class="section-title">Episodes</h2>
+                <div id="episodesList" class="episodes">
+                    <!-- Episodes will be inserted here -->
+                </div>
+            </div>
+            
+            <div class="player-container">
+                <h2 class="section-title">Watch</h2>
+                
+                <div class="video-container">
+                    <div id="videoPlaceholder" class="video-placeholder">
+                        <div class="video-placeholder-icon">▶️</div>
+                        <p>Select an episode to start watching</p>
+                    </div>
+                    <iframe id="videoPlayer" class="video-player" style="display:none;" allowfullscreen></iframe>
+                </div>
+                
+                <div class="player-controls">
+                    <button id="prevEpisode" class="control-button" disabled>◀ Previous</button>
+                    <button id="nextEpisode" class="control-button" disabled>Next ▶</button>
+                </div>
+                
+                <div id="episodeInfo" class="episode-info" style="display:none;">
+                    <h3 id="episodeInfoTitle" class="episode-info-title"></h3>
+                    <div id="episodeInfoDescription" class="episode-info-description"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM elements
+            const loadingEl = document.getElementById('loading');
+            const errorEl = document.getElementById('error');
+            const animeContainer = document.getElementById('animeContainer');
+            const backButton = document.getElementById('backButton');
+            const seasonSelect = document.getElementById('seasonSelect');
+            const episodesList = document.getElementById('episodesList');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPlaceholder = document.getElementById('videoPlaceholder');
+            const prevEpisodeBtn = document.getElementById('prevEpisode');
+            const nextEpisodeBtn = document.getElementById('nextEpisode');
+            const episodeInfo = document.getElementById('episodeInfo');
+            const episodeInfoTitle = document.getElementById('episodeInfoTitle');
+            const episodeInfoDescription = document.getElementById('episodeInfoDescription');
+            
+            // Get anime ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const animeId = urlParams.get('id');
+            
+            if (!animeId) {
+                showError('No anime ID provided. Please go back and select an anime.');
+                return;
+            }
+            
+            // Update back button href
+            backButton.href = `anime-details.html?id=${animeId}`;
+            
+            // Fetch anime details and episodes
+            fetchAnimeDetails(animeId);
+            
+            // Track current episode
+            let currentEpisodeIndex = -1;
+            let episodes = [];
+            
+            function fetchAnimeDetails(id) {
+                // GraphQL query for anime basic information
+                const query = `
+                query ($id: Int) {
+                    Media(id: $id, type: ANIME) {
+                        id
+                        title {
+                            romaji
+                            english
+                            native
+                        }
+                        coverImage {
+                            large
+                        }
+                        bannerImage
+                        episodes
+                        status
+                        nextAiringEpisode {
+                            episode
+                        }
+                    }
+                }
+                `;
+                
+                // Variables for the query
+                const variables = {
+                    id: parseInt(id)
+                };
+                
+                // API request configuration
+                const url = 'https://graphql.anilist.co';
+                const options = {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: query,
+                        variables: variables
+                    })
+                };
+                
+                // Make the API request
+                fetch(url, options)
+                    .then(handleResponse)
+                    .then(data => {
+                        if (data.data && data.data.Media) {
+                            displayAnimeInfo(data.data.Media);
+                            createEpisodesList(data.data.Media);
+                        } else {
+                            showError('Anime not found or API error.');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching anime details:', error);
+                        showError('Failed to load anime details. Please try again later.');
+                    });
+            }
+            
+            // Function to handle the response
+            function handleResponse(response) {
+                return response.json().then(function (json) {
+                    return response.ok ? json : Promise.reject(json);
+                });
+            }
+            
+            // Function to display error
+            function showError(message) {
+                loadingEl.style.display = 'none';
+                errorEl.textContent = message;
+                errorEl.style.display = 'block';
+            }
+            
+            // Function to display anime basic information
+            function displayAnimeInfo(anime) {
+                // Update page title
+                document.title = `${anime.title.romaji} | Episodes`;
+                
+                // Update header and title section
+                document.getElementById('romajiTitle').textContent = anime.title.romaji || 'No Title';
+                document.getElementById('englishTitle').textContent = anime.title.english || '';
+                
+                // Set cover image and background
+                const coverImage = document.getElementById('coverImage');
+                coverImage.src = anime.coverImage?.large || '/api/placeholder/180/260';
+                coverImage.alt = anime.title.romaji;
+                
+                const headerBackground = document.getElementById('headerBackground');
+                headerBackground.style.backgroundImage = `url('${anime.bannerImage || anime.coverImage?.large}')`;
+                
+                // Season selector setup
+                setupSeasonSelector(anime);
+                
+                // Show the container and hide loading indicator
+                loadingEl.style.display = 'none';
+                animeContainer.style.display = 'block';
+            }
+            
+            // Function to set up season selector
+            function setupSeasonSelector(anime) {
+                // In a real app, you would fetch multiple seasons if available
+                // For this example, we'll just create a placeholder season selector
+                seasonSelect.innerHTML = '';
+                
+                // Default season
+                const option = document.createElement('option');
+                option.value = '1';
+                option.textContent = 'Season 1';
+                seasonSelect.appendChild(option);
+                
+                // Add event listener for season change
+                seasonSelect.addEventListener('change', (e) => {
+                    const seasonId = e.target.value;
+                    // In a real app, you would fetch episodes for this season
+                    // For now, we'll just refresh the current episode list
+                    createEpisodesList(anime, seasonId);
+                });
+            }
+            
+            // Function to create episodes list
+            function createEpisodesList(anime, seasonId = '1') {
+                // Clear previous episodes
+                episodesList.innerHTML = '';
+                
+                // Get total episodes count
+                const totalEpisodes = anime.episodes || 0;
+                const nextAiring = anime.nextAiringEpisode?.episode;
+                
+                // Determine how many episodes to display
+                let episodesToShow = totalEpisodes;
+                
+                // If the anime is currently airing, include the next episode
+                if (anime.status === 'RELEASING' && nextAiring) {
+                    episodesToShow = nextAiring - 1;
+                }
+                
+                // If no episodes info is available, show generic count
+                if (episodesToShow <= 0) {
+                    episodesToShow = 12; // Default number for demo
+                }
+                
+                // Reset episodes array
+                episodes = [];
+                
+                // Generate fake episode data (in a real app, you would fetch this)
+                for (let i = 1; i <= episodesToShow; i++) {
+                    const episode = {
+                        number: i,
+                        title: `Episode ${i}`,
+                        description: `This is the description for episode ${i} of ${anime.title.romaji}. In a real application, this would contain the actual synopsis of the episode.`,
+                        length: '24 min',
+                        thumbnail: '/api/placeholder/300/170',
+                        videoUrl: `https://example.com/anime/${animeId}/season/${seasonId}/episode/${i}`
+                    };
+                    
+                    episodes.push(episode);
+                    
+                    // Create episode item in the list
+                    const episodeItem = document.createElement('div');
+                    episodeItem.className = 'episode-item';
+                    episodeItem.dataset.index = i - 1;
+                    
+                    episodeItem.innerHTML = `
+                        <span class="episode-number">EP ${episode.number}</span>
+                        <span class="episode-title">${episode.title}</span>
+                        <span class="episode-length">${episode.length}</span>
+                    `;
+                    
+                    // Add click event to play this episode
+                    episodeItem.addEventListener('click', () => {
+                        playEpisode(i - 1);
+                    });
+                    
+                    episodesList.appendChild(episodeItem);
+                }
+                
+                // Disable controls initially until an episode is selected
+                updateNavigationControls();
+            }
+            
+            // Function to play an episode
+            function playEpisode(index) {
+                // Validate index
+                if (index < 0 || index >= episodes.length) return;
+                
+                // Update current episode index
+                currentEpisodeIndex = index;
+                
+                // Get the episode data
+                const episode = episodes[index];
+                
+                // Update active episode in the list
+                const episodeItems = episodesList.querySelectorAll('.episode-item');
+                episodeItems.forEach(item => item.classList.remove('active'));
+                episodeItems[index].classList.add('active');
+                
+                // Scroll to the active episode in the list
+                episodeItems[index].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+                // In a real app, this would load the actual video
+                // For this demo, we'll show a placeholder iframe
+                videoPlaceholder.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                
+                // For the demo, we'll just use a placeholder
+                videoPlayer.src = `https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1`;
+                
+                // Update episode info
+                episodeInfo.style.display = 'block';
+                episodeInfoTitle.textContent = `${episode.number}. ${episode.title}`;
+                episodeInfoDescription.textContent = episode.description;
+                
+                // Update navigation controls
+                updateNavigationControls();
+            }
+            
+            // Function to update navigation controls
+            function updateNavigationControls() {
+                // Enable/disable previous button
+                prevEpisodeBtn.disabled = currentEpisodeIndex <= 0;
+                
+                // Enable/disable next button
+                nextEpisodeBtn.disabled = currentEpisodeIndex === -1 || currentEpisodeIndex >= episodes.length - 1;
+            }
+            
+            // Add event listeners for navigation buttons
+            prevEpisodeBtn.addEventListener('click', () => {
+                if (currentEpisodeIndex > 0) {
+                    playEpisode(currentEpisodeIndex - 1);
+                }
+            });
+            
+            nextEpisodeBtn.addEventListener('click', () => {
+                if (currentEpisodeIndex < episodes.length - 1) {
+                    playEpisode(currentEpisodeIndex + 1);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
